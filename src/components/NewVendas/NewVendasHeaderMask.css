@@ -1,0 +1,45 @@
+.nv-mask-shell {
+  animation: nv-mask-pulse 3.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.nv-mask-glow {
+  animation: nv-mask-glow 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.nv-mask-shine {
+  animation: nv-mask-shine 4.8s linear infinite;
+}
+
+@keyframes nv-mask-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(245, 192, 43, 0.22), 0 6px 18px rgba(245, 192, 43, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(245, 192, 43, 0.38), 0 10px 24px rgba(245, 192, 43, 0.2);
+  }
+}
+
+@keyframes nv-mask-glow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.52;
+  }
+}
+
+@keyframes nv-mask-shine {
+  0% {
+    transform: translateX(-8%) rotate(12deg);
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.28;
+  }
+  100% {
+    transform: translateX(470%) rotate(12deg);
+    opacity: 0.06;
+  }
+}

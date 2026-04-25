@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /agradecimento
+Disallow: /testeanimation
+
+Sitemap: https://dsx.com.vc/sitemap.xml

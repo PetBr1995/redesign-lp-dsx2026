@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="72" viewBox="0 0 220 72" fill="none">
+  <defs>
+    <linearGradient id="visaBlue" x1="0" y1="0" x2="220" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F255E"/>
+      <stop offset="1" stop-color="#2F56B4"/>
+    </linearGradient>
+  </defs>
+  <text
+    x="8"
+    y="56"
+    fill="url(#visaBlue)"
+    font-family="Arial Black, Arial, Helvetica, sans-serif"
+    font-size="64"
+    font-style="italic"
+    font-weight="900"
+    letter-spacing="1"
+  >VISA</text>
+</svg>
