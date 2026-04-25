@@ -1,36 +1,55 @@
 import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const ImpactoVendas = () => {
   const videos = [
     {
       titulo: "Expositor",
       video: "https://vimeo.com/1148163345?fl=ip&fe=ec",
-      thumb: "/card-image/expositor-card-img.png", // <- coloque no /public/thumbs/
+      thumb: "/card-image/expositor-card-img.png",
+      thumbAvif: "/optimized/step1/card-image/expositor-card-img.avif",
+      thumbWebp: "/optimized/step1/card-image/expositor-card-img.webp",
     },
     {
       titulo: "Palestrante",
       video: "https://vimeo.com/1148163374?fl=ip&fe=ec",
       thumb: "/card-image/kepler-card-img.png",
+      thumbAvif: "/optimized/step1/card-image/kepler-card-img.avif",
+      thumbWebp: "/optimized/step1/card-image/kepler-card-img.webp",
     },
     {
       titulo: "Participante",
       video: "https://vimeo.com/1148163408?fl=ip&fe=ec",
       thumb: "/card-image/participante-card-img.png",
+      thumbAvif: "/optimized/step1/card-image/participante-card-img.avif",
+      thumbWebp: "/optimized/step1/card-image/participante-card-img.webp",
     },
   ];
 
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(null);
 
-  // 🔒 Bloqueia scroll quando modal abre
+  const closeModal = () => {
+    setOpen(false);
+    setTimeout(() => setActive(null), 150);
+  };
+
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+
+    if (open) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", onKeyDown);
+    }
+
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
 
-  // 🔗 Converte link do Vimeo em embed
   const toVimeoEmbed = (url) => {
     try {
       const u = new URL(url);
@@ -68,44 +87,49 @@ const ImpactoVendas = () => {
         Confira como a 1ª edição impactou no mercado da Região Norte.
       </p>
 
-      {/* GRID */}
-      <div className="relative z-10 mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-8 px-4 sm:grid-cols-2 md:mt-12 md:grid-cols-3">
+      <div className="relative z-10 mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-5 px-4 sm:grid-cols-2 md:mt-12 md:grid-cols-3">
         {videos.map((item, index) => (
           <button
             key={index}
+            type="button"
             onClick={() => {
               setActive(item);
               setOpen(true);
             }}
-            className="group relative rounded-2xl overflow-hidden focus:outline-none"
+            className="
+              group text-left rounded-2xl p-2
+              bg-gradient-to-b from-[#0A1A23] via-[#071117] to-[#050B10]
+              border border-white/10
+              hover:border-white/20 hover:-translate-y-0.5
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-white/35
+            "
           >
-            {/* CARD com altura padronizada para casar com Speakers */}
-            <div className="relative h-[260px] bg-black ">
-              {item.thumb && (
+            <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
+              <picture>
+                <source srcSet={item.thumbAvif} type="image/avif" />
+                <source srcSet={item.thumbWebp} type="image/webp" />
                 <img
                   src={item.thumb}
                   alt={item.titulo}
-                  className="absolute inset-0 w-full h-full object-contain object-center"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   loading="lazy"
+                  decoding="async"
                   draggable="false"
                 />
-              )}
+              </picture>
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/25 transition" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/35 transition-opacity group-hover:from-black/60" />
 
-              {/* Play */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center group-hover:scale-110 transition">
-                  <svg width="34" height="34" viewBox="0 0 24 24" fill="white">
+                <div className="grid h-14 w-14 place-items-center rounded-full border border-white/25 bg-black/35 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="white" aria-hidden="true">
                     <path d="M9 18V6L19 12L9 18Z" />
                   </svg>
                 </div>
               </div>
 
-              {/* Texto */}
-              <div className="absolute bottom-4 left-4">
-                <p className="text-sm font-bold uppercase tracking-[0.12em] text-white sm:text-base">
+              <div className="absolute bottom-3 left-3">
+                <p className="font-jamjuree text-xs font-semibold uppercase tracking-[0.14em] text-white sm:text-sm">
                   {item.titulo}
                 </p>
               </div>
@@ -114,43 +138,53 @@ const ImpactoVendas = () => {
         ))}
       </div>
 
-      {/* MODAL */}
-      {open && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            className="absolute inset-0 bg-black/70"
-            onClick={() => setOpen(false)}
-          />
+            className="fixed inset-0 flex items-start justify-center overflow-y-auto p-4 sm:items-center sm:p-6"
+            style={{ zIndex: 2147483647 }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="absolute inset-0 bg-black/75 backdrop-blur-[2px]"
+              onClick={closeModal}
+            />
 
-          <div className="relative z-10 w-full max-w-4xl mx-4 bg-black rounded-xl overflow-hidden">
-            <div className="flex justify-between items-center p-3 border-b border-white/10">
-              <span className="text-white uppercase font-anton">
-                {active?.titulo}
-              </span>
+            <div className="relative my-auto w-full max-w-4xl overflow-hidden rounded-xl border border-white/12 bg-[#0b0f14] shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/10 p-3">
+                <span className="font-anton text-white uppercase">
+                  {active?.titulo}
+                </span>
 
-              <button
-                onClick={() => setOpen(false)}
-                className="text-white text-xl hover:opacity-70 transition"
-              >
-                ✕
-              </button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="rounded-md p-1 text-xl text-white/85 hover:text-white"
+                  aria-label="Fechar vídeo"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="relative w-full bg-black" style={{ aspectRatio: "16 / 9" }}>
+                {embedUrl && (
+                  <iframe
+                    key={embedUrl}
+                    src={embedUrl}
+                    className="absolute inset-0 h-full w-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
+                    title={active?.titulo || "Vídeo"}
+                  />
+                )}
+              </div>
             </div>
-
-            <div className="aspect-video bg-black">
-              {embedUrl && (
-                <iframe
-                  src={embedUrl}
-                  className="w-full h-full"
-                  allow="autoplay; fullscreen"
-                  allowFullScreen
-                  frameBorder="0"
-                  title="Vídeo"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </section>
   );
 };

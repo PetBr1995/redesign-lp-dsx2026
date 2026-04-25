@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import CTAButton from "./Mascaras/CTAButton"
 
 const Depoimentos = ({ ctaLink = "/vendas" }) => {
@@ -163,50 +164,55 @@ const Depoimentos = ({ ctaLink = "/vendas" }) => {
       </div>
 
       {/* MODAL */}
-      {open && (
-        <div className="fixed inset-0 z-50" aria-modal="true" role="dialog">
-          {/* backdrop */}
-          <div className="absolute inset-0 bg-black/70" onClick={closeModal} />
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed inset-0"
+            style={{ zIndex: 2147483647 }}
+            aria-modal="true"
+            role="dialog"
+          >
+            <div className="absolute inset-0 bg-black/70" onClick={closeModal} />
 
-          {/* modal content */}
-          <div className="relative mx-auto flex min-h-screen max-w-4xl items-center justify-center p-4">
-            <div className="relative w-full rounded-xl bg-[#0b0f14] border border-white/10 shadow-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                <h3 className="text-white font-anton uppercase text-lg">
-                  {active?.titulo}
-                </h3>
+            <div className="relative mx-auto flex min-h-screen max-w-4xl items-center justify-center p-4">
+              <div className="relative w-full rounded-xl bg-[#0b0f14] border border-white/10 shadow-xl overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                  <h3 className="text-white font-anton uppercase text-lg">
+                    {active?.titulo}
+                  </h3>
 
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="
-                    text-white/80 hover:text-white transition p-2
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md
-                  "
-                  aria-label="Fechar"
-                >
-                  ✕
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="
+                      text-white/80 hover:text-white transition p-2
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md
+                    "
+                    aria-label="Fechar"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-              {/* vídeo */}
-              <div className="w-full aspect-video bg-black">
-                {embedUrl && (
-                  <iframe
-                    key={embedUrl} // garante unmount/remount ao trocar de vídeo
-                    src={embedUrl}
-                    className="h-full w-full"
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    title={active?.titulo || "Vídeo"}
-                  />
-                )}
+                <div className="w-full aspect-video bg-black">
+                  {embedUrl && (
+                    <iframe
+                      key={embedUrl}
+                      src={embedUrl}
+                      className="h-full w-full"
+                      frameBorder="0"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      title={active?.titulo || "Vídeo"}
+                    />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* CTA */}
       <div className="py-10">
