@@ -539,20 +539,6 @@ const NewVendas = () => {
       </div>
 
       <div className="relative z-10">
-        <section className="w-full bg-black px-3 pt-3 md:px-4 md:pt-5">
-          <div className="w-full overflow-hidden rounded-2xl border border-[#5D481B]/70 bg-[#140F07] shadow-[0_24px_60px_rgba(0,0,0,0.42)] md:mx-auto md:max-w-[1200px]">
-            <picture>
-              <source media="(min-width: 768px)" srcSet="/banner-desktop.png" />
-              <img
-                src="/banner-mobile.png"
-                alt="Banner DSX"
-                className="block h-auto w-full object-cover opacity-95"
-                loading="eager"
-                decoding="async"
-              />
-            </picture>
-          </div>
-        </section>
         <NewVendasHero ctaLink="#passaportes" />
         {shouldRenderContent ? (
           <Suspense fallback={<div className="min-h-[120px]" />}>

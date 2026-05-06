@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const mainSpeakers = [
   {
@@ -103,9 +103,11 @@ const NewVendasSpeakersSlider = () => {
   const [currentSpeakerIndex, setCurrentSpeakerIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(3);
   const [isDraggingSpeakers, setIsDraggingSpeakers] = useState(false);
-  const [openSpeakerName, setOpenSpeakerName] = useState(null);
+  const [activeSpeaker, setActiveSpeaker] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTrackTransitionEnabled, setIsTrackTransitionEnabled] = useState(true);
   const speakerDragStartXRef = useRef(null);
+  const modalCloseTimeoutRef = useRef(null);
 
   useEffect(() => {
     const getCardsPerView = () => {
@@ -130,14 +132,14 @@ const NewVendasSpeakersSlider = () => {
   const maxSpeakerIndex = Math.max(mainSpeakers.length - cardsPerView, 0);
 
   useEffect(() => {
-    if (maxSpeakerIndex === 0 || isDraggingSpeakers) return;
+    if (maxSpeakerIndex === 0 || isDraggingSpeakers || activeSpeaker) return;
 
     const autoplayId = window.setInterval(() => {
       goToNextSpeakerSlide();
     }, 4200);
 
     return () => window.clearInterval(autoplayId);
-  }, [maxSpeakerIndex, isDraggingSpeakers, currentSpeakerIndex]);
+  }, [maxSpeakerIndex, isDraggingSpeakers, currentSpeakerIndex, activeSpeaker]);
 
   const goToNextSpeakerSlide = () => {
     if (maxSpeakerIndex === 0) return;
@@ -196,11 +198,88 @@ const NewVendasSpeakersSlider = () => {
     setIsDraggingSpeakers(false);
   };
 
-  const handleToggleSpeakerBio = (speakerName) => {
-    setOpenSpeakerName((current) =>
-      current === speakerName ? null : speakerName,
-    );
+  const openSpeakerModal = (speaker) => {
+    if (modalCloseTimeoutRef.current) {
+      window.clearTimeout(modalCloseTimeoutRef.current);
+      modalCloseTimeoutRef.current = null;
+    }
+    setActiveSpeaker(speaker);
+    window.requestAnimationFrame(() => setIsModalVisible(true));
   };
+
+  const closeSpeakerModal = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setIsModalVisible(false);
+    if (modalCloseTimeoutRef.current) {
+      window.clearTimeout(modalCloseTimeoutRef.current);
+    }
+    modalCloseTimeoutRef.current = window.setTimeout(() => {
+      setActiveSpeaker(null);
+      modalCloseTimeoutRef.current = null;
+    }, 220);
+  };
+
+  useEffect(() => {
+    if (!activeSpeaker) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeSpeakerModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeSpeaker]);
+
+  useEffect(() => {
+    if (!activeSpeaker) return undefined;
+
+    const { body, documentElement } = document;
+    const originalBodyOverflow = body.style.overflow;
+    const originalBodyPaddingRight = body.style.paddingRight;
+    const originalHtmlOverscroll = documentElement.style.overscrollBehavior;
+
+    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    documentElement.style.overscrollBehavior = "none";
+
+    const preventScroll = (event) => {
+      event.preventDefault();
+    };
+    const preventScrollKeys = (event) => {
+      const blockedKeys = [" ", "Spacebar", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"];
+      if (blockedKeys.includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+    window.addEventListener("keydown", preventScrollKeys, { passive: false });
+
+    return () => {
+      body.style.overflow = originalBodyOverflow;
+      body.style.paddingRight = originalBodyPaddingRight;
+      documentElement.style.overscrollBehavior = originalHtmlOverscroll;
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+      window.removeEventListener("keydown", preventScrollKeys);
+    };
+  }, [activeSpeaker]);
+
+  useEffect(() => {
+    return () => {
+      if (modalCloseTimeoutRef.current) {
+        window.clearTimeout(modalCloseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <section className="mx-auto mt-8 w-full max-w-6xl">
@@ -247,14 +326,6 @@ const NewVendasSpeakersSlider = () => {
                 key={speaker.name}
                 className="w-full shrink-0 px-0.5 sm:w-1/2 sm:px-1 lg:w-1/4 lg:px-1.5"
               >
-                {(() => {
-                  const isOpen = openSpeakerName === speaker.name;
-                  const descriptionId = `speaker-description-${speaker.name
-                    .toLowerCase()
-                    .replace(/\s+/g, "-")
-                    .replace(/[^\w-]/g, "")}`;
-
-                  return (
                 <article className="relative flex h-[338px] w-full flex-col overflow-hidden rounded-xl border border-[#5A4718] bg-black/80 text-left shadow-lg sm:h-[368px] md:h-[390px]">
                   <div className="relative h-[220px] w-full overflow-hidden bg-black sm:h-[250px] md:h-[270px]">
                     <img
@@ -274,44 +345,20 @@ const NewVendasSpeakersSlider = () => {
                     </h4>
                   </div>
 
-                  <div className="pointer-events-none absolute inset-x-0 bottom-[52px] z-20 px-3.5">
-                    <div
-                      id={descriptionId}
-                      className={`overflow-hidden rounded-xl border bg-[#050505]/96 transition-all duration-300 ease-out ${
-                        isOpen
-                          ? "max-h-[180px] border-[#5A4718]/90 px-3 py-3 opacity-100 shadow-[0_10px_30px_rgba(0,0,0,0.45)] pointer-events-auto"
-                          : "max-h-0 border-transparent px-3 py-0 opacity-0"
-                      }`}
-                    >
-                      <p className="font-jamjuree text-sm leading-relaxed text-white/90 md:text-[14px]">
-                        {speaker.bio}
-                      </p>
-                    </div>
-                  </div>
-
                   <div className="mt-auto border-t border-[#5A4718]/70 bg-black/90">
                     <button
                       type="button"
-                      aria-label={`${isOpen ? "Ocultar" : "Ver"} descrição de ${speaker.name}`}
-                      aria-expanded={isOpen}
-                      aria-controls={descriptionId}
+                      aria-label={`Ver informações de ${speaker.name}`}
                       onClick={(event) => {
                         event.stopPropagation();
-                        handleToggleSpeakerBio(speaker.name);
+                        openSpeakerModal(speaker);
                       }}
                       className="mx-auto my-2 grid h-10 w-10 place-items-center rounded-full border border-[#7A5E24] bg-[#151005] text-[#F5C02B] transition hover:bg-[#F5C02B]/12"
                     >
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform duration-300 ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
-                        strokeWidth={2.4}
-                      />
+                      <ChevronDown className="h-4 w-4" strokeWidth={2.4} />
                     </button>
                   </div>
                 </article>
-                  );
-                })()}
               </div>
             ))}
           </div>
@@ -338,6 +385,57 @@ const NewVendasSpeakersSlider = () => {
           </>
         ) : null}
       </div>
+
+      {activeSpeaker ? (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center px-4 py-8 backdrop-blur-[2px] transition-all duration-200 ease-out ${
+            isModalVisible ? "bg-black/80 opacity-100" : "bg-black/0 opacity-0"
+          }`}
+          onClick={closeSpeakerModal}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Informações de ${activeSpeaker.name}`}
+        >
+          <div
+            className={`relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[#6E541F] bg-[#0A0A0A] shadow-[0_20px_80px_rgba(0,0,0,0.7)] transition-opacity duration-220 ease-out ${
+              isModalVisible
+                ? "opacity-100"
+                : "opacity-0"
+            }`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeSpeakerModal}
+              aria-label="Fechar informações do palestrante"
+              className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-[#7A5E24] bg-[#151005]/90 text-[#F5C02B] transition hover:bg-[#F5C02B]/10"
+            >
+              <X className="h-4 w-4" strokeWidth={2.6} />
+            </button>
+
+            <div className="grid gap-0 md:grid-cols-[280px_minmax(0,1fr)]">
+              <div className="h-60 bg-black md:h-full">
+                <img
+                  src={activeSpeaker.image}
+                  alt={activeSpeaker.name}
+                  className="h-full w-full object-contain object-center"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+
+              <div className="p-5 md:p-6">
+                <h4 className="font-bebas text-[2rem] uppercase tracking-[0.02em] text-[#F5A205] md:text-[2.4rem]">
+                  {activeSpeaker.name}
+                </h4>
+                <p className="mt-3 font-jamjuree text-[0.98rem] leading-relaxed text-white/92 md:text-[1.02rem]">
+                  {activeSpeaker.bio}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 };

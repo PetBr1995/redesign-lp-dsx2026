@@ -95,7 +95,7 @@ const ParceirosSection = () => {
           Quem está ao lado do maior evento de negócios do Norte.
         </h2>
 
-        <div className="mt-6 rounded-2xl border border-[#F5A205]/50 bg-black/80 p-6 sm:p-8 lg:p-10">
+        <div className="mt-6 rounded-2xl border border-[#F5A205]/30 bg-black/80 p-6 sm:p-8 lg:p-10">
           <div className="grid gap-6 md:grid-cols-2">
           <article className="rounded-xl bg-black p-5 sm:p-6">
             <h3 className="mb-4 text-center font-jamjuree text-lg font-semibold capitalize tracking-wide text-[#F5A205]">
