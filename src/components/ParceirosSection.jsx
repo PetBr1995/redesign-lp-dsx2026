@@ -96,17 +96,16 @@ const ParceirosSection = () => {
         </h2>
 
         <div className="mt-6 rounded-2xl border border-[#F5A205]/30 bg-black/80 p-6 sm:p-8 lg:p-10">
-          <div className="grid gap-6 md:grid-cols-2">
           <article className="rounded-xl bg-black p-5 sm:p-6">
             <h3 className="mb-4 text-center font-jamjuree text-lg font-semibold capitalize tracking-wide text-[#F5A205]">
               Realização:
             </h3>
 
-            <div className="grid place-items-center gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {realizacaoLogos.map((logo) => (
                 <div
                   key={logo.src}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-6 py-5"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-6 py-5 lg:col-span-1"
                 >
                   <img
                     src={logo.src}
@@ -119,12 +118,12 @@ const ParceirosSection = () => {
             </div>
           </article>
 
-          <article className="rounded-xl bg-black p-5 sm:p-6">
+          <article className="mt-6 rounded-xl bg-black p-5 sm:p-6">
             <h3 className="mb-4 text-center font-jamjuree text-lg font-semibold capitalize tracking-wide text-[#F5A205]">
               Apoio:
             </h3>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {apoioLogos.map((logo) => (
                 <div
                   key={logo.src}
@@ -140,14 +139,13 @@ const ParceirosSection = () => {
               ))}
             </div>
           </article>
-          </div>
 
           <article className="mt-6 rounded-xl bg-black p-5 sm:p-6">
             <h3 className="mb-4 text-center font-jamjuree text-lg font-semibold capitalize tracking-wide text-[#F5A205]">
               Expositores:
             </h3>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {expositoresLogos.map((logo) => (
                 <div
                   key={logo.src}
@@ -169,7 +167,7 @@ const ParceirosSection = () => {
               Food:
             </h3>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {foodLogos.map((logo) => (
                 <div
                   key={logo.src}
